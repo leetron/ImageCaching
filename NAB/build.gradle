@@ -1,0 +1,45 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'me.tatarka:gradle-retrolambda:3.3.1'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+ext{
+    //identity
+    productId = 'com.luclx.nab'
+    versionCode = 1
+    versionName = '1.0'
+
+    //Sdk and tools
+    minSdkVersion = 19
+    targetSdkVersion = 25
+    compileSdkVersion = 25
+    buildToolsVersion = '25.0.2'
+
+    // Application dependencies
+    supportLibraryVersion = '25.0.0'
+    constraintVersion = '1.0.2'
+    okhttpVersion = '3.6.0'
+    rxJavaVersion= '2.0.6'
+    rxAndroidVersion = '2.0.1'
+    junitVersion = '4.12'
+
+}
