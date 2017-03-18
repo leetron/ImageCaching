@@ -11,10 +11,9 @@ import android.widget.Toast;
 
 import com.luclx.nab.NABApplication;
 import com.luclx.nab.R;
-import com.luclx.nab.utils.FileUtils;
+import com.luclx.nab.utils.ObservableUtils;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -30,7 +29,9 @@ public class MainActivity
     private static final String ZIP_FILE = "data.zip";
     private static final int MY_PERMISSIONS_REQUEST = 1000;
 
-    Observable<Integer> dataObservable;
+    Observable<Integer> downloadObservable;
+    Observable<Integer> unzipObservable;
+    Observable<Integer> saveLocalObservable;
     Disposable disposable;
     private File zipFile;
 
@@ -52,7 +53,7 @@ public class MainActivity
                 == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                         == PackageManager.PERMISSION_GRANTED) {
-            requestDownload();
+            requestData();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -69,7 +70,7 @@ public class MainActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    requestDownload();
+                    requestData();
                 } else {
 
                 }
@@ -87,12 +88,14 @@ public class MainActivity
     }
 
     /**
-     * download url data
+     * download, unzip, save data to local
      */
-    private void requestDownload() {
+    private void requestData() {
         if (NABApplication.getInstance().getDatabase().noDataExist()) {
-            dataObservable = getDownloadTask();
-            disposable = dataObservable
+            downloadObservable = downloadTask();
+            unzipObservable = unzipTask().startWith(downloadObservable);
+            saveLocalObservable = saveLocalTask().startWith(unzipObservable);
+            disposable = saveLocalObservable
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -100,7 +103,10 @@ public class MainActivity
                             , (e) -> {
                                 hideDialog();
                                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-                            }, () -> requestUnzip());
+                            }, () -> {
+                                hideDialog();
+                                Toast.makeText(this, "Setup completed!", Toast.LENGTH_LONG).show();
+                            });
         }
     }
 
@@ -109,38 +115,27 @@ public class MainActivity
      *
      * @return
      */
-    private Observable<Integer> getDownloadTask() {
-        showDialog("Loading data...");
-        return FileUtils.downloadFile(URL_FILE, zipFile.getAbsolutePath());
+    private Observable<Integer> downloadTask() {
+        showDialog("Setup data...");
+        return ObservableUtils.downloadFile(URL_FILE, zipFile.getAbsolutePath());
     }
 
     /**
      * unzip file
+     *
+     * @return
      */
-    private void requestUnzip() {
-        if (zipFile.exists()) {
-            FileUtils.unZip(zipFile.getAbsolutePath(), Environment.getExternalStorageDirectory() + "");
-            mProgressDialog.setProgress(75);
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            saveLocalData();
-        }
+    private Observable<Integer> unzipTask() {
+        return ObservableUtils.requestUnZip(zipFile.getAbsolutePath());
     }
 
     /**
-     * save data to sqlite
+     * save local
+     *
+     * @return
      */
-    private void saveLocalData() {
-        ArrayList<String> list0 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images0.json");
-        ArrayList<String> list1 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images1.json");
-        ArrayList<String> list2 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images2.json");
-        NABApplication.getInstance().getDatabase().addURLs(list0, 0);
-        NABApplication.getInstance().getDatabase().addURLs(list1, 1);
-        NABApplication.getInstance().getDatabase().addURLs(list2, 2);
-        mProgressDialog.setProgress(100);
-        hideDialog();
+    private Observable<Integer> saveLocalTask() {
+        return ObservableUtils.requestSaveLocal();
     }
+
 }

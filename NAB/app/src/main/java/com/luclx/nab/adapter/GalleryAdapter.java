@@ -3,6 +3,7 @@ package com.luclx.nab.adapter;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,9 @@ import com.luclx.nab.data.entities.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+
 /**
  * Created by LucLX on 3/18/17.
  */
@@ -22,9 +26,11 @@ import java.util.List;
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageViewHolder> {
     private Context mContext;
     private List<URL> urlList;
+    private PublishSubject<Pair<Integer, URL>> onClickedItem;
 
     public GalleryAdapter(Context mContext) {
         this.mContext = mContext;
+        onClickedItem = PublishSubject.create();
         urlList = new ArrayList<>();
     }
 
@@ -41,13 +47,19 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageVie
     }
 
     @Override
-    public void onBindViewHolder(final ImageViewHolder holder, int position) {
+    public void onBindViewHolder(ImageViewHolder holder, int position) {
         Glide.with(mContext).load(urlList.get(position).getUrl()).into(holder.imageView);
+        holder.imageView.setOnClickListener(view ->
+                onClickedItem.onNext(Pair.create(position, getItem(position))));
     }
 
     @Override
     public int getItemCount() {
         return urlList.size();
+    }
+
+    private URL getItem(int position) {
+        return urlList.get(position);
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
@@ -57,6 +69,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageVie
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.thumbnail);
         }
+    }
+
+    public Observable<Pair<Integer, URL>> onItemClickListener() {
+        return onClickedItem.hide();
     }
 
 }

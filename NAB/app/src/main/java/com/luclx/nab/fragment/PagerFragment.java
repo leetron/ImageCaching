@@ -1,6 +1,7 @@
 package com.luclx.nab.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -10,6 +11,7 @@ import android.view.View;
 
 import com.luclx.nab.NABApplication;
 import com.luclx.nab.R;
+import com.luclx.nab.activity.ImageActivity;
 import com.luclx.nab.adapter.GalleryAdapter;
 import com.luclx.nab.data.entities.URL;
 import com.luclx.nab.utils.PixelUtils;
@@ -18,7 +20,9 @@ import java.util.ArrayList;
 
 
 public class PagerFragment extends AbstractFragment {
+    public static final String URL = "url";
     private static final String INDEX = "index";
+
     private int mIndex;
     private RecyclerView mRecycleView;
     private GalleryAdapter mAdapter;
@@ -46,6 +50,10 @@ public class PagerFragment extends AbstractFragment {
     @Override
     public void initView(View view, Bundle bundle) {
         mAdapter = new GalleryAdapter(getActivity());
+        mAdapter.onItemClickListener()
+                .filter(dataPair -> dataPair != null && dataPair.second != null)
+                .map(dataPair -> dataPair.second.getUrl())
+                .subscribe(url -> startActivity(url));
         mRecycleView = (RecyclerView) view.findViewById(R.id.recycleView);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mRecycleView.setLayoutManager(mLayoutManager);
@@ -94,5 +102,11 @@ public class PagerFragment extends AbstractFragment {
                 }
             }
         }
+    }
+
+    private void startActivity(String url) {
+        Intent intent = new Intent(getActivity(), ImageActivity.class);
+        intent.putExtra(URL, url);
+        startActivity(intent);
     }
 }
