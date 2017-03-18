@@ -6,15 +6,15 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.luclx.nab.NABApplication;
 import com.luclx.nab.R;
 import com.luclx.nab.utils.FileUtils;
 
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -78,27 +78,46 @@ public class MainActivity
         }
     }
 
-    private void requestDownload() {
-        dataObservable = getDownloadTask();
-        disposable = dataObservable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        (progress) -> {
-                            mProgressDialog.setProgress(progress);
-                            Log.e("LUC", Thread.currentThread().getName());
-                        }
-                        , (e) -> {
-                            hideDialog();
-                            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-                        }, () -> {
-                            Log.e("LUC", Thread.currentThread().getName());
-                            requestUnzip();
-                        });
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
     }
 
+    /**
+     * download url data
+     */
+    private void requestDownload() {
+        if (NABApplication.getInstance().getDatabase().noDataExist()) {
+            dataObservable = getDownloadTask();
+            disposable = dataObservable
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            (progress) -> mProgressDialog.setProgress(progress)
+                            , (e) -> {
+                                hideDialog();
+                                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }, () -> requestUnzip());
+        }
+    }
+
+    /**
+     * create observable
+     *
+     * @return
+     */
+    private Observable<Integer> getDownloadTask() {
+        showDialog("Loading data...");
+        return FileUtils.downloadFile(URL_FILE, zipFile.getAbsolutePath());
+    }
+
+    /**
+     * unzip file
+     */
     private void requestUnzip() {
-        Log.e("LUC", Thread.currentThread().getName());
         if (zipFile.exists()) {
             FileUtils.unZip(zipFile.getAbsolutePath(), Environment.getExternalStorageDirectory() + "");
             mProgressDialog.setProgress(75);
@@ -111,29 +130,17 @@ public class MainActivity
         }
     }
 
+    /**
+     * save data to sqlite
+     */
     private void saveLocalData() {
-        List<String> list1 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images0.json");
-        List<String> list2 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images1.json");
-        List<String> list3 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images2.json");
+        ArrayList<String> list0 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images0.json");
+        ArrayList<String> list1 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images1.json");
+        ArrayList<String> list2 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images2.json");
+        NABApplication.getInstance().getDatabase().addURLs(list0, 0);
+        NABApplication.getInstance().getDatabase().addURLs(list1, 1);
+        NABApplication.getInstance().getDatabase().addURLs(list2, 2);
         mProgressDialog.setProgress(100);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         hideDialog();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (!disposable.isDisposed()) {
-            disposable.dispose();
-        }
-    }
-
-    private Observable<Integer> getDownloadTask() {
-        showDialog("Loading data...");
-        return FileUtils.downloadFile(URL_FILE, zipFile.getAbsolutePath());
     }
 }

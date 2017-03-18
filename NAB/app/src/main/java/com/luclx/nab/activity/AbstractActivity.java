@@ -43,6 +43,8 @@ public abstract class AbstractActivity extends AppCompatActivity {
     protected void showDialog(String message) {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setMax(100);
+            mProgressDialog.setIndeterminate(false);
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setCancelable(true);
         }

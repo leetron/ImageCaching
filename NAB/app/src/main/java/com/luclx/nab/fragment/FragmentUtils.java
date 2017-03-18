@@ -10,4 +10,5 @@ import android.view.View;
 public interface FragmentUtils {
     int getLayoutId();
     void initView(View view, Bundle bundle);
+    void setData();
 }

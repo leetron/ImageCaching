@@ -78,11 +78,12 @@ public class FileUtils {
                 }
             }
             zipFile.close();
+            //delete zip file
             if (sourceZipFile.exists()) {
                 sourceZipFile.delete();
             }
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -144,7 +145,7 @@ public class FileUtils {
      * @param filePath
      * @return
      */
-    public static List<String> getURL(String filePath) {
+    public static ArrayList<String> getURL(String filePath) {
         ArrayList<String> urlList = new ArrayList<>();
         try {
             File yourFile = new File(filePath);
@@ -158,7 +159,13 @@ public class FileUtils {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                stream.close();
+                try {
+                    if (stream != null) {
+                        stream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             // Getting data JSON Array nodes
