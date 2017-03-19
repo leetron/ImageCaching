@@ -16,12 +16,10 @@
 
 package com.luclx.nab.loader;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.util.Log;
 
 import java.io.FileDescriptor;
@@ -121,9 +119,6 @@ public class ImageResizer extends ImageWorker {
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         // END_INCLUDE (read_bitmap_dimensions)
 
-        // If we're running on Honeycomb or newer, try to use inBitmap
-        addInBitmapOptions(options, cache);
-
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
@@ -149,9 +144,6 @@ public class ImageResizer extends ImageWorker {
 
         // Calculate inSampleSize
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // If we're running on Honeycomb or newer, try to use inBitmap
-        addInBitmapOptions(options, cache);
 
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
@@ -182,28 +174,7 @@ public class ImageResizer extends ImageWorker {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
 
-        // If we're running on Honeycomb or newer, try to use inBitmap
-        addInBitmapOptions(options, cache);
-
         return BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private static void addInBitmapOptions(BitmapFactory.Options options, ImageCache cache) {
-        //BEGIN_INCLUDE(add_bitmap_options)
-        // inBitmap only works with mutable bitmaps so force the decoder to
-        // return mutable bitmaps.
-        options.inMutable = true;
-
-        if (cache != null) {
-            // Try and find a bitmap to use for inBitmap
-            Bitmap inBitmap = cache.getBitmapFromReusableSet(options);
-
-            if (inBitmap != null) {
-                options.inBitmap = inBitmap;
-            }
-        }
-        //END_INCLUDE(add_bitmap_options)
     }
 
     /**

@@ -25,7 +25,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.widget.ImageView;
@@ -64,7 +63,7 @@ public abstract class ImageWorker {
      * Load an image specified by the data parameter into an ImageView (override
      * {@link ImageWorker#processBitmap(Object)} to define the processing logic). A memory and
      * disk cache will be used if an {@link ImageCache} has been added using
-     * {@link ImageWorker#addImageCache(FragmentManager, ImageCache.ImageCacheParams)}. If the
+     * {@link ImageWorker#addImageCache(ImageCache.ImageCacheParams)}. If the
      * image is found in the memory cache, it is set immediately, otherwise an {@link }
      * will be created to asynchronously load the bitmap.
      *
@@ -108,7 +107,7 @@ public abstract class ImageWorker {
      * Load an image specified by the data parameter into an ImageView (override
      * {@link ImageWorker#processBitmap(Object)} to define the processing logic). A memory and
      * disk cache will be used if an {@link ImageCache} has been added using
-     * {@link ImageWorker#addImageCache(FragmentManager, ImageCache.ImageCacheParams)}. If the
+     * {@link ImageWorker#addImageCache(ImageCache.ImageCacheParams)}. If the
      * image is found in the memory cache, it is set immediately, otherwise an {@link AsyncTask}
      * will be created to asynchronously load the bitmap.
      *
@@ -405,7 +404,7 @@ public abstract class ImageWorker {
             // Transition drawable with a transparent drawable and the final drawable
             final TransitionDrawable td =
                     new TransitionDrawable(new Drawable[]{
-                            new ColorDrawable(android.R.color.transparent),
+                            new ColorDrawable(mResources.getColor(android.R.color.transparent) ),
                             drawable
                     });
             // Set background to loading bitmap

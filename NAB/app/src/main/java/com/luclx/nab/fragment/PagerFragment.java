@@ -14,7 +14,6 @@ import com.luclx.nab.R;
 import com.luclx.nab.activity.ImageActivity;
 import com.luclx.nab.adapter.GalleryAdapter;
 import com.luclx.nab.data.entities.URL;
-import com.luclx.nab.loader.ImageCache;
 import com.luclx.nab.loader.ImageLoader;
 
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ public class PagerFragment extends AbstractFragment {
     public static final String URL = "url";
     private static final String INDEX = "index";
     private static final String TAG = "PagerFragment";
-    private static final String IMAGE_CACHE_DIR = "thumbs";
 
     private int mIndex;
     private RecyclerView mRecycleView;
@@ -44,6 +42,7 @@ public class PagerFragment extends AbstractFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mIndex = getArguments() != null ? getArguments().getInt(INDEX, 0) : 0;
+        mImageLoader = NABApplication.getInstance().getImageLoader();
     }
 
     @Override
@@ -53,7 +52,6 @@ public class PagerFragment extends AbstractFragment {
 
     @Override
     public void initView(View view, Bundle bundle) {
-        settingLoader();
         mAdapter = new GalleryAdapter(getActivity(), mImageLoader);
         mAdapter.onItemClickListener()
                 .filter(dataPair -> dataPair != null && dataPair.second != null)
@@ -99,18 +97,6 @@ public class PagerFragment extends AbstractFragment {
     public void onDestroy() {
         super.onDestroy();
         mImageLoader.closeCache();
-    }
-
-    private void settingLoader() {
-        ImageCache.ImageCacheParams cacheParams =
-                new ImageCache.ImageCacheParams(getActivity(), IMAGE_CACHE_DIR);
-
-        cacheParams.setMemCacheSizePercent(0.25f); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageLoader = new ImageLoader(getActivity(), 600);
-        mImageLoader.setLoadingImage(R.drawable.empty_photo);
-        mImageLoader.addImageCache(cacheParams);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.luclx.nab.utils;
 
+import android.content.Context;
+import android.os.Environment;
+
 import org.json.JSONArray;
 
 import java.io.BufferedInputStream;
@@ -16,6 +19,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static android.os.Environment.isExternalStorageRemovable;
 
 /**
  * Created by LucLX on 3/18/17.
@@ -121,5 +126,23 @@ public class FileUtils {
             e.printStackTrace();
         }
         return urlList;
+    }
+
+    /**
+     * Get a usable cache directory (external if available, internal otherwise).
+     *
+     * @param context    The context to use
+     * @param uniqueName A unique directory name to append to the cache dir
+     * @return The cache dir
+     */
+    public static File getDiskCacheDir(Context context, String uniqueName) {
+        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
+        // otherwise use internal cache dir
+        final String cachePath =
+                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                        !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
+                        context.getCacheDir().getPath();
+
+        return new File(cachePath + File.separator + uniqueName);
     }
 }

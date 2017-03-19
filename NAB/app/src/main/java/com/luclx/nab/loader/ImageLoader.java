@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2012 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.luclx.nab.loader;
 
@@ -24,6 +9,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.jakewharton.disklrucache.DiskLruCache;
+import com.luclx.nab.NABApplication;
+import com.luclx.nab.utils.FileUtils;
+import com.luclx.nab.utils.StringUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -77,7 +65,7 @@ public class ImageLoader extends ImageResizer {
 
     private void init(Context context) {
         checkConnection(context);
-        mHttpCacheDir = ImageCache.getDiskCacheDir(context, HTTP_CACHE_DIR);
+        mHttpCacheDir = FileUtils.getDiskCacheDir(context, HTTP_CACHE_DIR);
     }
 
     @Override
@@ -180,7 +168,7 @@ public class ImageLoader extends ImageResizer {
     private Bitmap processBitmap(String data) {
         Log.d(TAG, "processBitmap - " + data);
 
-        final String key = ImageCache.hashKeyForDisk(data);
+        final String key = StringUtils.hashKeyForDisk(data);
         FileDescriptor fileDescriptor = null;
         FileInputStream fileInputStream = null;
         DiskLruCache.Snapshot snapshot;
@@ -255,7 +243,7 @@ public class ImageLoader extends ImageResizer {
      * @return true if successful, false otherwise
      */
     public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
-        final OkHttpClient client = new OkHttpClient();
+        final OkHttpClient client = NABApplication.getInstance().getOkHttpClient();
         final Request request = new Request.Builder().url(urlString).build();
         BufferedOutputStream out = null;
         BufferedInputStream in = null;

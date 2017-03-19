@@ -30,7 +30,7 @@ public class ObservableUtils {
      */
     public static Observable<Integer> downloadFile(String url, String destination) {
         return Observable.create(emitter -> {
-            final OkHttpClient client = new OkHttpClient();
+            final OkHttpClient client = NABApplication.getInstance().getOkHttpClient();
             final Request request = new Request.Builder().url(url).build();
             InputStream inputStream = null;
             FileOutputStream fileOutputStream = null;
