@@ -81,7 +81,7 @@ public class ObservableUtils {
     public static Observable<Integer> requestUnZip(String destination) {
         return Observable.create(emitter -> {
             FileUtils.unZip(destination, Environment.getExternalStorageDirectory() + "");
-            emitter.onNext(75);
+            emitter.onNext(70);
             emitter.onComplete();
         });
     }
@@ -94,10 +94,15 @@ public class ObservableUtils {
     public static Observable<Integer> requestSaveLocal() {
         return Observable.create(emitter -> {
             ArrayList<String> list0 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images0.json");
+            emitter.onNext(75);
             ArrayList<String> list1 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images1.json");
+            emitter.onNext(80);
             ArrayList<String> list2 = FileUtils.getURL(Environment.getExternalStorageDirectory() + "/JSON files/images2.json");
+            emitter.onNext(85);
             NABApplication.getInstance().getDatabase().addURLs(list0, 0);
+            emitter.onNext(90);
             NABApplication.getInstance().getDatabase().addURLs(list1, 1);
+            emitter.onNext(95);
             NABApplication.getInstance().getDatabase().addURLs(list2, 2);
             emitter.onNext(100);
             try {

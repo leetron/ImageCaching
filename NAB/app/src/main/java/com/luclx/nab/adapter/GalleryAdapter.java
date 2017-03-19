@@ -8,10 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
-import com.bumptech.glide.Glide;
 import com.luclx.nab.R;
 import com.luclx.nab.data.entities.URL;
+import com.luclx.nab.loader.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +28,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageVie
     private Context mContext;
     private List<URL> urlList;
     private PublishSubject<Pair<Integer, URL>> onClickedItem;
+    private ImageLoader mImageLoader;
 
-    public GalleryAdapter(Context mContext) {
+    public GalleryAdapter(Context mContext, ImageLoader loader) {
         this.mContext = mContext;
+        this.mImageLoader = loader;
         onClickedItem = PublishSubject.create();
         urlList = new ArrayList<>();
     }
@@ -48,7 +51,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageVie
 
     @Override
     public void onBindViewHolder(ImageViewHolder holder, int position) {
-        Glide.with(mContext).load(urlList.get(position).getUrl()).into(holder.imageView);
+        mImageLoader.loadImage(urlList.get(position).getUrl(), holder.imageView);
+        holder.progressBar.setProgress(70);
         holder.imageView.setOnClickListener(view ->
                 onClickedItem.onNext(Pair.create(position, getItem(position))));
     }
@@ -58,16 +62,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageVie
         return urlList.size();
     }
 
+    @Override
+    public void onViewRecycled(ImageViewHolder holder) {
+        super.onViewRecycled(holder);
+        //
+    }
+
     private URL getItem(int position) {
         return urlList.get(position);
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
         public ImageView imageView;
+        public ProgressBar progressBar;
 
         public ImageViewHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.thumbnail);
+            progressBar = (ProgressBar) itemView.findViewById(R.id.progressBar);
         }
     }
 

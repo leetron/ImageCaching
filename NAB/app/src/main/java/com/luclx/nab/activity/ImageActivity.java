@@ -1,6 +1,5 @@
 package com.luclx.nab.activity;
 
-import com.bumptech.glide.Glide;
 import com.luclx.nab.R;
 import com.luclx.nab.customview.TouchViewTrim;
 import com.luclx.nab.fragment.PagerFragment;
@@ -22,6 +21,6 @@ public class ImageActivity extends AbstractActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mImage = (TouchViewTrim) findViewById(R.id.image);
         String url = getIntent() != null ? getIntent().getExtras().getString(PagerFragment.URL) : "";
-        Glide.with(this).load(url).into(mImage);
+//        Glide.with(this).load(url).into(mImage);
     }
 }
