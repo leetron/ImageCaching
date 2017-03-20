@@ -39,7 +39,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageVie
 
     public void setData(List<URL> urlList) {
         this.urlList = urlList;
-        Log.e("LUC", "Size " + urlList.size() + "");
         notifyDataSetChanged();
     }
 

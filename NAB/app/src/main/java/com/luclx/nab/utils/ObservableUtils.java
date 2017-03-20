@@ -106,7 +106,7 @@ public class ObservableUtils {
             NABApplication.getInstance().getDatabase().addURLs(list2, 2);
             emitter.onNext(100);
             try {
-                Thread.sleep(500);
+                Thread.sleep(300);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

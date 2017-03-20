@@ -41,6 +41,11 @@ public class MainActivity
     }
 
     @Override
+    protected void initImageLoader() {
+        // do nothing
+    }
+
+    @Override
     protected void onViewReady() {
         Button btnStart = (Button) findViewById(R.id.start);
         btnStart.setOnClickListener(view ->

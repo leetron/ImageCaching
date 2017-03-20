@@ -11,6 +11,7 @@ import android.view.View;
 
 import com.luclx.nab.NABApplication;
 import com.luclx.nab.R;
+import com.luclx.nab.activity.DemoActivity;
 import com.luclx.nab.activity.ImageActivity;
 import com.luclx.nab.adapter.GalleryAdapter;
 import com.luclx.nab.data.entities.URL;
@@ -42,7 +43,9 @@ public class PagerFragment extends AbstractFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mIndex = getArguments() != null ? getArguments().getInt(INDEX, 0) : 0;
-        mImageLoader = NABApplication.getInstance().getImageLoader();
+        if (DemoActivity.class.isInstance(getActivity())) {
+            mImageLoader = ((DemoActivity) getActivity()).getImageLoader();
+        }
     }
 
     @Override
@@ -82,12 +85,14 @@ public class PagerFragment extends AbstractFragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.e("Luc", mIndex + " onResume");
         mImageLoader.setExitTasksEarly(false);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.e("Luc", mIndex + " onPause ");
         mImageLoader.setPauseWork(true);
         mImageLoader.setExitTasksEarly(true);
         mImageLoader.flushCache();
@@ -96,6 +101,7 @@ public class PagerFragment extends AbstractFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.e("Luc", mIndex + " uonDestroy ");
         mImageLoader.closeCache();
     }
 
@@ -103,13 +109,13 @@ public class PagerFragment extends AbstractFragment {
     public void setData() {
         urlList = new ArrayList<>();
         urlList.addAll(NABApplication.getInstance().getDatabase().getAllURLWithType(mIndex));
+//        Log.e("Luc", mIndex + " urlList count " + urlList.size());
         mAdapter.setData(urlList);
     }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        Log.e("Luc", mIndex + " isVisibleToUser " + isVisibleToUser);
     }
 
     private void startActivity(String url) {
