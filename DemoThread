@@ -1,0 +1,89 @@
+private void demoThread() {
+        Thread normalThread;
+        HandlerThread handlerThread;
+        final Handler handlerMain, handler;
+
+        ///////////////////////
+        //Handler for main thread
+        handlerMain = new Handler(getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                Log.e("LUC", "Handler handleMessage from " + Thread.currentThread().getName());
+            }
+        };
+        handlerMain.post(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("LUC", "Handler run from " + Thread.currentThread().getName());
+            }
+        });
+
+
+        ////////////
+        // HandlerThread
+        handlerThread = new HandlerThread("HandlerThread");
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                Log.e("LUC", "Handler handleMessage from " + Thread.currentThread().getName());
+            }
+        };
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("LUC", "Handler run from " + Thread.currentThread().getName());
+            }
+        });
+
+        ////////////////////
+
+        //way1: implement from Runnable
+        normalThread = new Thread(new Runnable() {
+            public Looper looper;
+            public Handler normalHandler;
+
+            @Override
+            public void run() {
+                Looper.prepare();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+
+                }
+                Log.e("LUC", "handlerMain sendMessage from " + Thread.currentThread().getName());
+                handlerMain.sendEmptyMessage(1);
+                Log.e("LUC", "handler sendMessage from " + Thread.currentThread().getName());
+                handler.sendEmptyMessage(2);
+
+                looper = Looper.myLooper();
+                normalHandler = new Handler(looper) {
+                    @Override
+                    public void handleMessage(Message msg) {
+                        // not call because no send any msg
+                        Log.e("LUC", "Handler handleMessage from " + Thread.currentThread().getName());
+                    }
+                };
+                normalHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e("LUC", "Handler run from " + Thread.currentThread().getName());
+                    }
+                });
+                Looper.loop();
+            }
+        });
+
+        //way2 extend from Thread
+//        normalThread = new Thread(){
+//            @Override
+//            public void run() {
+//                super.run();
+//            }
+//        };
+
+
+        //////////////
+        normalThread.setName("NormalThread");
+        normalThread.start();
+    }
